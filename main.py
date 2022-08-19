@@ -124,7 +124,7 @@ if __name__ == '__main__':
         kinto_remote_url = config.get("KINTO", "KINTO_REMOTE_URL")
     except Exception as e:
         logger.critical(e)
-        sys.exit("Could not load project configurations.")
+        raise Exception("Could not load project configurations.")
 
     logger.info(
         f"Get configurations for kinto : dev_id: {dev_id}, "

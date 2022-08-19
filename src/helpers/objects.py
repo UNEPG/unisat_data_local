@@ -1,4 +1,4 @@
-from typing import Generic, Set
+from typing import Generic, Set, Dict, Tuple
 
 
 def get_cls_attrs(obj: Generic, exclude_magics: bool = True, exclude_functions: bool = True) -> Set[str]:
@@ -12,3 +12,7 @@ def get_cls_attrs(obj: Generic, exclude_magics: bool = True, exclude_functions: 
     elif exclude_functions:
         return set(attrs_all).intersection(set(attrs_without_functions))
     return set(attrs_all)
+
+
+def dict_without_keys(d: Dict, keys: Tuple):
+    return {x: d[x] for x in d if x not in keys}

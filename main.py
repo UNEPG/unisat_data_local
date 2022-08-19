@@ -3,12 +3,13 @@ import logging
 import os
 import threading
 from pathlib import Path
-
+import time
 import kinto_http
 import serial
 from dotenv import load_dotenv
 from kinto_http import KintoException
 
+from src.helpers.objects import dict_without_keys
 from src.usart.usart import list_all_available_ports, is_unisat_data_provider
 
 working_dir = Path().absolute()
@@ -72,7 +73,12 @@ def handle_data(data):
     data = data.decode('ascii')
     logger.debug("data decoded to string: " + str(data))
     if data == '\r\n':
-        push_data(package)
+        timestamp = int(time.time())
+        if any(package):
+            package['timestamp'] = timestamp
+            push_data(package)
+        else:
+            pass
         # after we pushed that package content, we need to clean up its contents
         package = {}
     else:
@@ -88,6 +94,22 @@ def handle_data(data):
                 package[key] = float(value)
         except ValueError as er:
             logger.warning(er)
+
+
+def sync_data(local_kinto_client, remote_kinto_client, collection_name):
+    # retrieve all records from the local kinto client
+    local_records = local_kinto_client.get_records(bucket="default", collection=collection_name)
+    logger.debug("local_records: %s", local_records)
+    for each in local_records:
+        data = dict_without_keys(each, ("id", "last_modified"))
+        remote_kinto_client.update_record(id=each["id"], data=data, bucket="default", collection=collection_name)
+    local_kinto_client.delete_records(bucket="default", collection=collection_name)
+    try:
+        interval = config.get("SYNCING", "DEFAULT_SYNCING_INTERVAL", fallback=600)
+        interval = int(interval)
+    except ValueError:
+        interval = 600
+    time.sleep(interval)
 
 
 def read_from_serial(serial_instance):
@@ -164,3 +186,6 @@ if __name__ == '__main__':
 
     thread = threading.Thread(target=read_from_serial, args=(ser,))
     thread.start()
+
+    thread_sync = threading.Thread(target=sync_data, args=(local_client, remote_client, dev_id))
+    thread_sync.start()

@@ -132,6 +132,8 @@ if __name__ == '__main__':
         f"kinto_remote_url: {kinto_remote_url}")
 
     # initialize the serial connection
+    all_ports = list_all_available_ports()
+    logger.info(f"All available ports in the system: {all_ports}")
     serial_port = config.get("UART", "UART_PORT")
     try:
         ser = serial.Serial(port=serial_port, baudrate=9600)

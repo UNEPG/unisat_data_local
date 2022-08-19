@@ -11,12 +11,12 @@ def list_all_available_ports():
     return result
 
 
-def is_unisat_data_provider(port: str) -> bool:
+def is_unisat_data_provider(port: str, timeout: int = 10) -> bool:
     """Check if the port is correct for UniSat Data Provider.
     We check this by reading 10 seconds of serial data and compare the received bytes with the PSoTT
     protocol.
     """
-    with serial.Serial(port=port, baudrate=9600, timeout=10) as ser:
+    with serial.Serial(port=port, baudrate=9600, timeout=timeout) as ser:
         s = ser.read(100)  # read 10 byte
         decoded = s.decode('utf-8')
     return 'subID' in decoded

@@ -1,13 +1,12 @@
+import configparser
+import logging
 import os
-import sys
 import threading
+from pathlib import Path
+
 import kinto_http
 import serial
 from dotenv import load_dotenv
-import logging
-import configparser
-from pathlib import Path
-
 from kinto_http import KintoException
 
 from src.usart.usart import list_all_available_ports, is_unisat_data_provider
@@ -135,6 +134,20 @@ if __name__ == '__main__':
     all_ports = list_all_available_ports()
     logger.info(f"All available ports in the system: {all_ports}")
     serial_port = config.get("UART", "UART_PORT")
+    if serial_port not in all_ports:
+        logger.critical(
+            f"Configured serial port {serial_port} is not available in the system. available ports are: {all_ports}")
+        raise Exception(
+            f"Configured serial port {serial_port} is not available in the system. available ports are: {all_ports}")
+
+    logger.debug(f"Examining provided port {serial_port} against PSoTT protocol")
+    if not is_unisat_data_provider(serial_port, timeout=20):
+        logger.critical(
+            f"Serial port {serial_port} did not send any data that matched the PSoTT protocol")
+        raise Exception(
+            f"Serial port {serial_port} did not send any data that matched the PSoTT protocol"
+        )
+
     try:
         ser = serial.Serial(port=serial_port, baudrate=9600)
     except serial.SerialException as e:

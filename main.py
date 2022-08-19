@@ -1,4 +1,5 @@
 import os
+import sys
 import threading
 import kinto_http
 import serial
@@ -11,7 +12,9 @@ from kinto_http import KintoException
 
 from src.usart.usart import list_all_available_ports, is_unisat_data_provider
 
-config_file = Path.cwd().parent / 'config.ini'
+working_dir = Path().absolute()
+config_file = working_dir / 'config.ini'
+
 config = configparser.ConfigParser()
 config.read(config_file)
 
@@ -115,8 +118,13 @@ if __name__ == '__main__':
     kinto_password = os.getenv('KINTO_PASSWORD')
 
     dev_id = config.get("DEFAULT", "DEV_ID", fallback="unino")
-    kinto_local_url = config.get("KINTO", "KINTO_LOCAL_URL")
-    kinto_remote_url = config.get("KINTO", "KINTO_REMOTE_URL")
+
+    try:
+        kinto_local_url = config.get("KINTO", "KINTO_LOCAL_URL")
+        kinto_remote_url = config.get("KINTO", "KINTO_REMOTE_URL")
+    except Exception as e:
+        logger.critical(e)
+        sys.exit("Could not load project configurations.")
 
     logger.info(
         f"Get configurations for kinto : dev_id: {dev_id}, "

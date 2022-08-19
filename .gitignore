@@ -376,7 +376,7 @@ cython_debug/
 # Ignore all local history of files
 .history
 .ionide
-
+config.ini
 # Support for Project snippet scope
 .vscode/*.code-snippets
 

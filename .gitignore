@@ -405,7 +405,7 @@ $RECYCLE.BIN/
 *.msix
 *.msm
 *.msp
-
+*.config.ini
 # Windows shortcuts
 *.lnk
 

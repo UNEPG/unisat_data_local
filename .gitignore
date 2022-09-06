@@ -5,7 +5,7 @@
 ### C++ ###
 # Prerequisites
 *.d
-
+config.ini
 # Compiled Object files
 *.slo
 *.lo

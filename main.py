@@ -109,6 +109,8 @@ def sync_data(local_kinto_client, remote_kinto_client, collection_name):
         interval = int(interval)
     except ValueError:
         interval = 600
+    # delete null collection
+    remote_kinto_client.delete_collection(bucket="default", collection="null", if_exists=True)
     time.sleep(interval)
 
 

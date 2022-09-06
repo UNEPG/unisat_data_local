@@ -100,17 +100,22 @@ def sync_data(local_kinto_client, remote_kinto_client, collection_name):
     # retrieve all records from the local kinto client
     local_records = local_kinto_client.get_records(bucket="default", collection=collection_name)
     logger.debug("local_records: %s", local_records)
-    for each in local_records:
-        data = dict_without_keys(each, ("id", "last_modified"))
-        remote_kinto_client.update_record(id=each["id"], data=data, bucket="default", collection=collection_name)
-    local_kinto_client.delete_records(bucket="default", collection=collection_name)
+    try:
+        for each in local_records:
+            data = dict_without_keys(each, ("id", "last_modified"))
+            remote_kinto_client.update_record(id=each["id"], data=data, bucket="default", collection=collection_name)
+        local_kinto_client.delete_records(bucket="default", collection=collection_name)
+        # delete null collection
+        remote_kinto_client.delete_collection(id="null", bucket="default", if_exists=True)
+    except:
+        pass
+
     try:
         interval = config.get("SYNCING", "DEFAULT_SYNCING_INTERVAL", fallback=600)
         interval = int(interval)
     except ValueError:
         interval = 600
-    # delete null collection
-    remote_kinto_client.delete_collection(bucket="default", collection="null", if_exists=True)
+
     time.sleep(interval)
 
 

@@ -2,7 +2,7 @@
 
 #implements: PSoTT Local
 
-## Installing 
+## Installing
 
 ### Install Python3 
 
@@ -19,11 +19,47 @@ Download the package (or git clone ) to `/home/pi/<any folder>/`
 
 Run `python3 -m venv venv`
 
-Run `source venv venv`
+Run `source venv/bin/activate`
 
 Run `python3 -m pip install -U pip setuptools wheel`
 
 Run `pip3 install -r requirements.txt` 
+
+## Running
+
+### Run Docker Containers
+
+Install docker according to the official docker documentation.
+
+```dockerfile
+docker compose up -d
+```
+
+### Run data-backend with systemd
+
+Open the `unisat.service` file inside the `system.d` folder, and edit contents
+
+```
+[Unit]
+Description=UniSat Data Backend Publisher Service for POsTT
+After=multi-user.target
+
+[Service]
+Type=idle
+
+WorkingDirectory=/home/azat/Developer/test_python_service/python_test
+ExecStart=/home/azat/Developer/test_python_service/venv/bin/python main.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+You should at least edit this two lines:
+
+![CleanShot 2022-09-06 at 09.18.36](https://raw.githubusercontent.com/azataiot/images/master/2022/09/upgit_20220906_1662445138.png)
+
+For further info: https://azat.cc/2021/01/18/server-snippets.html#systemd 
 
 ## Configuring the Package
 
